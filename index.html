@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ETFopt — Your ETF, Your Way</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue-50:  #eff8ff;
+      --blue-100: #dbeffe;
+      --blue-200: #b9e0fd;
+      --blue-300: #7ccbfc;
+      --blue-400: #38adf8;
+      --blue-500: #0e92eb;
+      --blue-600: #0273ca;
+      --blue-700: #035ba4;
+      --blue-800: #074d87;
+      --blue-900: #0c3e6f;
+      --accent:   #00c9a7;
+      --accent2:  #f59e0b;
+      --surface:  #f0f8ff;
+      --card:     #ffffff;
+      --text:     #0c2d4e;
+      --muted:    #5b8ab0;
+      --border:   #c7e2f5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--surface);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5vw; height: 64px;
+      background: rgba(239, 248, 255, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--blue-700); letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a {
+      text-decoration: none; font-size: 0.875rem;
+      color: var(--muted); font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--blue-700); }
+    .nav-cta {
+      background: var(--blue-600); color: #fff !important;
+      padding: 0.45rem 1.2rem; border-radius: 6px;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--blue-800) !important; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      text-align: center; padding: 100px 6vw 60px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(56,173,248,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 10% 80%, rgba(0,201,167,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 70%, rgba(5,115,203,0.1) 0%, transparent 60%),
+        var(--surface);
+    }
+    .bubble {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(186,224,253,0.55), rgba(56,173,248,0.1));
+      animation: float 8s ease-in-out infinite;
+    }
+    .bubble:nth-child(1){ width:320px;height:320px;top:-80px;left:-60px;animation-delay:0s; }
+    .bubble:nth-child(2){ width:180px;height:180px;top:20%;right:-40px;animation-delay:2s; }
+    .bubble:nth-child(3){ width:100px;height:100px;bottom:15%;left:10%;animation-delay:4s; }
+    .bubble:nth-child(4){ width:60px;height:60px;bottom:25%;right:15%;animation-delay:1s; }
+    @keyframes float {
+      0%,100%{ transform:translateY(0) scale(1); }
+      50%{ transform:translateY(-18px) scale(1.04); }
+    }
+    .hero-content { position:relative; z-index:1; max-width:800px; }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      background:var(--blue-100); color:var(--blue-700);
+      border:1px solid var(--blue-200); border-radius:100px;
+      padding:0.3rem 1rem; font-size:0.78rem; font-weight:500;
+      margin-bottom:2rem; animation:fadeDown 0.7s ease both;
+    }
+    .hero-badge::before{ content:''; width:7px;height:7px;border-radius:50%;background:var(--accent);display:block; }
+    h1.hero-title {
+      font-family:'DM Serif Display',serif;
+      font-size:clamp(2.4rem,5.5vw,4rem);
+      line-height:1.12; color:var(--blue-900); margin-bottom:1rem;
+      animation:fadeDown 0.7s 0.15s ease both;
+    }
+    h1.hero-title em { font-style:normal; color:var(--blue-500); }
+    .hero-sub {
+      font-size:clamp(0.95rem,2vw,1.15rem);
+      color:var(--muted); line-height:1.75; margin-bottom:2.5rem;
+      animation:fadeDown 0.7s 0.3s ease both;
+    }
+    .hero-actions {
+      display:flex; flex-wrap:wrap; gap:1rem; justify-content:center;
+      animation:fadeDown 0.7s 0.45s ease both;
+    }
+    .btn-primary {
+      background:var(--blue-600); color:#fff; border:none; border-radius:8px;
+      padding:0.8rem 2rem; font-size:0.95rem; font-weight:600;
+      cursor:pointer; transition:all 0.25s; font-family:'Noto Sans TC',sans-serif;
+      box-shadow:0 4px 18px rgba(2,115,202,0.35);
+    }
+    .btn-primary:hover { background:var(--blue-800); transform:translateY(-2px); box-shadow:0 8px 24px rgba(2,115,202,0.45); }
+    .btn-outline {
+      background:transparent; color:var(--blue-700);
+      border:1.5px solid var(--blue-300); border-radius:8px;
+      padding:0.8rem 2rem; font-size:0.95rem; font-weight:600;
+      cursor:pointer; transition:all 0.25s; font-family:'Noto Sans TC',sans-serif;
+    }
+    .btn-outline:hover { background:var(--blue-100); border-color:var(--blue-500); }
+    .hero-stats {
+      display:flex; gap:3rem; justify-content:center; margin-top:4rem;
+      animation:fadeDown 0.7s 0.6s ease both;
+    }
+    .stat { text-align:center; }
+    .stat-num { font-family:'Space Mono',monospace; font-size:1.8rem; font-weight:700; color:var(--blue-700); }
+    .stat-label { font-size:0.78rem; color:var(--muted); margin-top:0.2rem; }
+    @keyframes fadeDown {
+      from{ opacity:0; transform:translateY(-16px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    /* SECTIONS */
+    section { padding:100px 6vw; }
+    .section-label {
+      font-family:'Space Mono',monospace;
+      font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase;
+      color:var(--blue-500); margin-bottom:0.8rem;
+    }
+    .section-title {
+      font-family:'DM Serif Display',serif;
+      font-size:clamp(1.8rem,3.5vw,2.6rem);
+      color:var(--blue-900); margin-bottom:1rem; line-height:1.2;
+    }
+    .section-desc { font-size:1rem; color:var(--muted); max-width:520px; line-height:1.75; }
+
+    /* PAIN */
+    .pain-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:1.5rem; margin-top:3rem;
+    }
+    .pain-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:2rem; transition:all 0.3s;
+      position:relative; overflow:hidden;
+    }
+    .pain-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,var(--blue-400),var(--accent));
+      opacity:0; transition:opacity 0.3s;
+    }
+    .pain-card:hover{ transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.08); }
+    .pain-card:hover::before{ opacity:1; }
+    .pain-icon {
+      width:48px; height:48px; border-radius:12px;
+      background:var(--blue-100); display:flex; align-items:center; justify-content:center;
+      font-size:1.4rem; margin-bottom:1.2rem;
+    }
+    .pain-subtitle { font-size:0.72rem; color:var(--blue-500); font-family:'Space Mono',monospace; margin-bottom:0.4rem; }
+    .pain-card h3 { font-size:1.05rem; font-weight:700; color:var(--blue-900); margin-bottom:0.6rem; }
+    .pain-card p { font-size:0.875rem; color:var(--muted); line-height:1.7; }
+
+    /* METHOD */
+    .method-section {
+      background:linear-gradient(160deg,var(--blue-900) 0%,var(--blue-700) 100%);
+      color:#fff; border-radius:28px; margin:0 4vw; padding:80px 6vw;
+    }
+    .method-section .section-label{ color:var(--blue-300); }
+    .method-section .section-title{ color:#fff; }
+    .method-section .section-desc{ color:rgba(255,255,255,0.7); max-width:100%; }
+    .steps {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:2rem; margin-top:3.5rem;
+    }
+    .step-num { font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--blue-300); letter-spacing:0.1em; margin-bottom:0.8rem; }
+    .step-title { font-size:1.05rem; font-weight:700; color:#fff; margin-bottom:0.5rem; }
+    .step-desc { font-size:0.85rem; color:rgba(255,255,255,0.6); line-height:1.7; }
+    .step-tag {
+      display:inline-block; margin-top:0.8rem;
+      background:rgba(255,255,255,0.12); color:var(--blue-200);
+      border-radius:6px; padding:0.2rem 0.7rem;
+      font-size:0.72rem; font-family:'Space Mono',monospace;
+    }
+
+    /* DIMENSIONS */
+    .dimensions-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:1.2rem; margin-top:3rem;
+    }
+    .dim-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:14px; padding:1.5rem;
+      display:flex; gap:1rem; align-items:flex-start; transition:all 0.3s;
+    }
+    .dim-card:hover{ box-shadow:0 8px 30px rgba(0,0,0,0.07); transform:translateY(-2px); }
+    .dim-dot{ flex-shrink:0; width:10px; height:10px; border-radius:50%; margin-top:5px; }
+    .dim-card h4{ font-size:0.95rem; font-weight:700; color:var(--blue-800); margin-bottom:0.3rem; }
+    .dim-card p{ font-size:0.8rem; color:var(--muted); line-height:1.6; }
+    .dim-tags{ display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.7rem; }
+    .dim-tag {
+      background:var(--blue-50); color:var(--blue-600);
+      border:1px solid var(--blue-200); border-radius:4px;
+      font-size:0.7rem; padding:0.15rem 0.5rem; font-family:'Space Mono',monospace;
+    }
+
+    /* FORMULA */
+    .formula-box {
+      background:var(--blue-900); border-radius:16px;
+      padding:2.5rem 3rem; margin-top:3rem; text-align:center;
+    }
+    .formula-text {
+      font-family:'Space Mono',monospace;
+      font-size:clamp(0.8rem,2vw,1.05rem);
+      color:var(--blue-200); line-height:2; letter-spacing:0.03em;
+    }
+    .formula-text em{ color:var(--accent); font-style:normal; }
+    .formula-note{ margin-top:1.2rem; font-size:0.8rem; color:rgba(255,255,255,0.45); }
+
+    /* BUSINESS MODEL */
+    .biz-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:1.5rem; margin-top:3rem;
+    }
+    .biz-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:2rem; text-align:center; transition:all 0.3s;
+    }
+    .biz-card.featured {
+      background:linear-gradient(145deg,var(--blue-700),var(--blue-500));
+      border-color:transparent;
+    }
+    .biz-card:hover{ transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.1); }
+    .biz-badge {
+      display:inline-block; background:var(--blue-50); color:var(--blue-600);
+      border-radius:100px; padding:0.25rem 0.9rem;
+      font-size:0.72rem; font-weight:600; margin-bottom:1.2rem;
+      font-family:'Space Mono',monospace;
+    }
+    .biz-card.featured .biz-badge{ background:rgba(255,255,255,0.2); color:#fff; }
+    .biz-price {
+      font-family:'DM Serif Display',serif;
+      font-size:2.2rem; color:var(--blue-900); margin:0.8rem 0 0.3rem;
+    }
+    .biz-card.featured .biz-price{ color:#fff; }
+    .biz-period{ font-size:0.8rem; color:var(--muted); margin-bottom:1.2rem; }
+    .biz-card.featured .biz-period{ color:rgba(255,255,255,0.65); }
+    .biz-card h3{ font-size:1.1rem; font-weight:700; color:var(--blue-900); margin-bottom:0.5rem; }
+    .biz-card.featured h3{ color:#fff; }
+    .biz-features{ list-style:none; text-align:left; margin-top:1rem; }
+    .biz-features li {
+      font-size:0.82rem; color:var(--muted); padding:0.35rem 0;
+      border-bottom:1px solid var(--border);
+      display:flex; gap:0.5rem; align-items:flex-start;
+    }
+    .biz-card.featured .biz-features li{ color:rgba(255,255,255,0.75); border-color:rgba(255,255,255,0.15); }
+    .biz-features li::before{ content:'✓'; color:var(--accent); font-weight:700; flex-shrink:0; }
+    .biz-card.featured .biz-features li::before{ color:#fff; }
+
+    /* DEMO */
+    .demo-section {
+      background:var(--card); border-radius:24px; border:1px solid var(--border);
+      padding:3rem; margin-top:3rem; box-shadow:0 4px 30px rgba(0,0,0,0.05);
+    }
+    .demo-title {
+      font-size:1.1rem; font-weight:700; color:var(--blue-900); margin-bottom:2rem;
+      display:flex; align-items:center; gap:0.7rem;
+    }
+    .demo-title::before{ content:''; width:4px; height:20px; border-radius:2px; background:var(--blue-500); display:block; }
+    .slider-group{ margin-bottom:1.5rem; }
+    .slider-label{ display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+    .slider-label span:first-child{ font-size:0.88rem; font-weight:500; color:var(--blue-800); }
+    .slider-val {
+      font-family:'Space Mono',monospace; font-size:0.78rem;
+      color:var(--blue-600); background:var(--blue-50);
+      border:1px solid var(--blue-200); border-radius:6px; padding:0.15rem 0.6rem;
+    }
+    input[type=range] {
+      -webkit-appearance:none; width:100%; height:5px;
+      border-radius:3px; background:var(--blue-200); outline:none; cursor:pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+      background:var(--blue-500); border:2.5px solid #fff;
+      box-shadow:0 2px 8px rgba(14,146,235,0.4); transition:transform 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover{ transform:scale(1.2); }
+    .demo-result {
+      background:var(--blue-50); border:1px solid var(--blue-200);
+      border-radius:12px; padding:1.5rem; margin-top:2rem;
+    }
+    .result-label{ font-size:0.75rem; color:var(--muted); margin-bottom:0.8rem; text-transform:uppercase; letter-spacing:0.08em; }
+    .etf-bars{ display:flex; flex-direction:column; gap:0.6rem; }
+    .etf-bar-row{ display:flex; align-items:center; gap:1rem; }
+    .etf-name{ font-family:'Space Mono',monospace; font-size:0.78rem; color:var(--blue-800); width:55px; flex-shrink:0; }
+    .bar-track{ flex:1; background:var(--blue-200); border-radius:4px; height:10px; overflow:hidden; }
+    .bar-fill{ height:100%; border-radius:4px; background:linear-gradient(90deg,var(--blue-400),var(--accent)); transition:width 0.6s cubic-bezier(.4,0,.2,1); }
+    .bar-pct{ font-size:0.75rem; color:var(--blue-700); font-weight:600; font-family:'Space Mono',monospace; width:40px; text-align:right; }
+
+    /* CTA */
+    .cta-section {
+      text-align:center;
+      background:linear-gradient(135deg,var(--blue-100) 0%,rgba(0,201,167,0.08) 100%);
+      border:1px solid var(--blue-200); border-radius:24px;
+      margin:0 4vw; padding:80px 6vw;
+    }
+    .cta-section .section-title{ margin-bottom:1rem; }
+    .cta-section .section-desc{ margin:0 auto 2.5rem; text-align:center; max-width:480px; }
+
+    footer {
+      text-align:center; padding:3rem 6vw;
+      font-size:0.8rem; color:var(--muted);
+      border-top:1px solid var(--border); margin-top:4rem;
+    }
+    footer strong{ color:var(--blue-700); }
+
+    .reveal{ opacity:0; transform:translateY(24px); transition:opacity 0.6s ease,transform 0.6s ease; }
+    .reveal.visible{ opacity:1; transform:translateY(0); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">ETF<span>opt</span></div>
+  <div class="nav-links">
+    <a href="#problem">Problem</a>
+    <a href="#method">How It Works</a>
+    <a href="#data">Dimensions</a>
+    <a href="#biz">Business Model</a>
+    <a href="#demo">Try It</a>
+    <a href="#cta" class="nav-cta">Get Started</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">Preference-Driven ETF Portfolio Optimization</div>
+    <h1 class="hero-title">Your Preferences.<br><em>Your Portfolio.</em></h1>
+    <p class="hero-sub">
+      With over 15,000 ETFs globally, finding the ones that truly fit <em>you</em> is nearly impossible.<br>
+      ETFopt is the first platform that builds and optimizes your ETF portfolio<br>
+      entirely around your individual goals, risk tolerance, and investment priorities.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">🚀 Try the Demo</button>
+      <button class="btn-outline" onclick="document.getElementById('method').scrollIntoView({behavior:'smooth'})">See How It Works →</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">15K+</div><div class="stat-label">Global ETFs</div></div>
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">Preference Dimensions</div></div>
+      <div class="stat"><div class="stat-num">DEA</div><div class="stat-label">Efficiency Filtering</div></div>
+      <div class="stat"><div class="stat-num">AHP</div><div class="stat-label">Preference Engine</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="reveal">
+    <div class="section-label">The Problem</div>
+    <div class="section-title">Finding the right ETF<br>shouldn't feel impossible</div>
+    <p class="section-desc">The ETF market has exploded in size — but tools to navigate it haven't kept up with retail investors' real needs.</p>
+  </div>
+  <div class="pain-grid reveal">
+    <div class="pain-card">
+      <div class="pain-icon">📊</div>
+      <div class="pain-subtitle">Information Overload</div>
+      <h3>Too many options, too little clarity</h3>
+      <p>The global ETF market surpassed 15,807 products across 65 countries in 2025, making meaningful comparison virtually impossible for retail investors.</p>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">🎯</div>
+      <div class="pain-subtitle">No Personalized Fit</div>
+      <h3>Hard to find what actually fits you</h3>
+      <p>With thousands of options available, it is extremely difficult for retail investors to identify the ETF that best fits their individual needs, risk tolerance, and financial goals.</p>
+    </div>
+    <div class="pain-card">
+      <div class="pain-icon">💸</div>
+      <div class="pain-subtitle">Hidden Cost Blindspot</div>
+      <h3>True costs stay invisible</h3>
+      <p>Hidden costs — bid-ask spreads and NAV deviations — are systematically overlooked by retail investors who focus only on surface-level returns.</p>
+    </div>
+  </div>
+</section>
+
+<div class="method-section reveal" id="method">
+  <div class="section-label">How It Works</div>
+  <div class="section-title">Four steps to your<br>ideal ETF portfolio</div>
+  <p class="section-desc">ETFopt transforms raw market data into a multi-dimensional scoring system, then personalizes recommendations around your exact preferences.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">STEP 01</div>
+      <div class="step-title">DEA Efficiency Filter</div>
+      <div class="step-desc">Risk and cost are treated as inputs; return, liquidity, and diversification as outputs. ETFs below an efficiency score of 0.8 are eliminated, leaving only high-quality candidates.</div>
+      <span class="step-tag">Target Reduction</span>
+    </div>
+    <div class="step">
+      <div class="step-num">STEP 02</div>
+      <div class="step-title">AHP Preference Capture</div>
+      <div class="step-desc">Rather than asking you to fill in imprecise percentages, AHP pairwise comparisons mathematically quantify your preferences across 6 dimensions with a consistency check (CR value).</div>
+      <span class="step-tag">Preference Capture</span>
+    </div>
+    <div class="step">
+      <div class="step-num">STEP 03</div>
+      <div class="step-title">Multi-Objective Optimization</div>
+      <div class="step-desc">A custom utility function replaces MPT's expected return, factoring in covariance across assets to produce a truly diversified allocation — not just a pile of similar ETFs.</div>
+      <span class="step-tag">Portfolio Optimization</span>
+    </div>
+    <div class="step">
+      <div class="step-num">STEP 04</div>
+      <div class="step-title">Personalized Recommendations</div>
+      <div class="step-desc">Your ranked ETF list and allocation plan is generated, with FinBERT-powered sentiment signals alerting you when market conditions shift against your portfolio assumptions.</div>
+      <span class="step-tag">Recommendations</span>
+    </div>
+  </div>
+</div>
+
+<section id="data">
+  <div class="reveal">
+    <div class="section-label">Evaluation Dimensions</div>
+    <div class="section-title">Six dimensions.<br>One score built around you.</div>
+    <p class="section-desc">ETFopt evaluates every ETF across six dimensions, then weighs them according to your personal preferences — not a generic formula.</p>
+  </div>
+  <div class="dimensions-grid reveal">
+    <div class="dim-card">
+      <div class="dim-dot" style="background:#0e92eb"></div>
+      <div><h4>Return</h4><p>Past performance as a signal of long-term wealth accumulation potential.</p>
+      <div class="dim-tags"><span class="dim-tag">Annualized Return</span><span class="dim-tag">Dividend Yield</span></div></div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-dot" style="background:#f59e0b"></div>
+      <div><h4>Risk</h4><p>High-return ETFs may carry extreme volatility. We quantify both sides.</p>
+      <div class="dim-tags"><span class="dim-tag">Volatility</span><span class="dim-tag">Max Drawdown</span></div></div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-dot" style="background:#00c9a7"></div>
+      <div><h4>Holding Cost</h4><p>The real long-term cost of owning an ETF, beyond the headline figure.</p>
+      <div class="dim-tags"><span class="dim-tag">Expense Ratio</span></div></div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-dot" style="background:#7c3aed"></div>
+      <div><h4>Liquidity</h4><p>How easily your orders fill, and whether market depth is sufficient.</p>
+      <div class="dim-tags"><span class="dim-tag">Avg. Daily Volume</span><span class="dim-tag">Bid-Ask Spread</span><span class="dim-tag">AUM</span></div></div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-dot" style="background:#ef4444"></div>
+      <div><h4>Diversification</h4><p>Actual holdings, sector concentration, and overlap with your existing portfolio.</p>
+      <div class="dim-tags"><span class="dim-tag">Holdings</span><span class="dim-tag">Sector Weights</span></div></div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-dot" style="background:#0891b2"></div>
+      <div><h4>Market Sentiment</h4><p>Real-time signals detecting when an ETF's price drifts from its true value.</p>
+      <div class="dim-tags"><span class="dim-tag">FinBERT Score</span></div></div>
+    </div>
+  </div>
+  <div class="formula-box reveal">
+    <div class="formula-text">U(P) = <em>w<sub>ret</sub></em>·R<sub>P</sub> − w<sub>risk</sub>·V<sub>P</sub> − w<sub>cost</sub>·C<sub>P</sub> + w<sub>liq</sub>·L<sub>P</sub> + w<sub>div</sub>·D<sub>P</sub> + w<sub>sent</sub>·S<sub>P</sub></div>
+    <div class="formula-text" style="margin-top:0.5rem;color:rgba(255,255,255,0.5);font-size:0.85rem;">V<sub>P</sub> = P<sup>T</sup>ΣP &nbsp;(covariance-aware risk term)</div>
+    <div class="formula-note">Multi-objective utility function — driven by your AHP preference weight vector W across all six dimensions</div>
+  </div>
+</section>
+
+<section id="biz">
+  <div class="reveal">
+    <div class="section-label">Business & Revenue Model</div>
+    <div class="section-title">Built to scale.<br>Priced for everyone.</div>
+    <p class="section-desc">B2C SaaS with a freemium subscription model — lowering the barrier for retail investors while building a sustainable revenue engine.</p>
+  </div>
+  <div class="biz-grid reveal">
+    <div class="biz-card">
+      <div class="biz-badge">FREE</div>
+      <h3>Starter</h3>
+      <div class="biz-price">$0</div>
+      <div class="biz-period">forever</div>
+      <ul class="biz-features">
+        <li>Basic ETF screening</li>
+        <li>Limited side-by-side comparisons</li>
+        <li>Surface-level cost visibility</li>
+      </ul>
+    </div>
+    <div class="biz-card featured">
+      <div class="biz-badge">MOST POPULAR</div>
+      <h3>Pro</h3>
+      <div class="biz-price">$X</div>
+      <div class="biz-period">per month</div>
+      <ul class="biz-features">
+        <li>Full 6-dimension optimization</li>
+        <li>AHP-powered preference capture</li>
+        <li>Personalized portfolio recommendations</li>
+        <li>Hidden cost breakdown</li>
+      </ul>
+    </div>
+    <div class="biz-card">
+      <div class="biz-badge">PREMIUM</div>
+      <h3>Advanced</h3>
+      <div class="biz-price">$X</div>
+      <div class="biz-period">per month</div>
+      <ul class="biz-features">
+        <li>Real-time FinBERT sentiment alerts</li>
+        <li>Portfolio rebalancing notifications</li>
+        <li>Advanced analytics dashboard</li>
+        <li>Compare vs. your existing portfolio</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="reveal">
+    <div class="section-label">Interactive Demo</div>
+    <div class="section-title">Set your preferences.<br>See your portfolio.</div>
+    <p class="section-desc">Adjust how much each dimension matters to you — the platform instantly recalculates an optimized allocation tailored to your inputs.</p>
+  </div>
+  <div class="demo-section reveal">
+    <div class="demo-title">Your Preference Settings (AHP Simulation)</div>
+    <div class="slider-group">
+      <div class="slider-label"><span>📈 Return Priority</span><span class="slider-val" id="v1">70%</span></div>
+      <input type="range" min="0" max="100" value="70" oninput="updateDemo(this,'v1')">
+    </div>
+    <div class="slider-group">
+      <div class="slider-label"><span>⚖️ Risk Tolerance</span><span class="slider-val" id="v2">40%</span></div>
+      <input type="range" min="0" max="100" value="40" oninput="updateDemo(this,'v2')">
+    </div>
+    <div class="slider-group">
+      <div class="slider-label"><span>💰 Cost Sensitivity</span><span class="slider-val" id="v3">60%</span></div>
+      <input type="range" min="0" max="100" value="60" oninput="updateDemo(this,'v3')">
+    </div>
+    <div class="slider-group">
+      <div class="slider-label"><span>🔄 Liquidity Requirement</span><span class="slider-val" id="v4">50%</span></div>
+      <input type="range" min="0" max="100" value="50" oninput="updateDemo(this,'v4')">
+    </div>
+    <div class="slider-group">
+      <div class="slider-label"><span>🌐 Diversification Preference</span><span class="slider-val" id="v5">55%</span></div>
+      <input type="range" min="0" max="100" value="55" oninput="updateDemo(this,'v5')">
+    </div>
+    <div class="slider-group">
+      <div class="slider-label"><span>📰 Market Sentiment Weight</span><span class="slider-val" id="v6">30%</span></div>
+      <input type="range" min="0" max="100" value="30" oninput="updateDemo(this,'v6')">
+    </div>
+    <div class="demo-result">
+      <div class="result-label">Optimized Portfolio Allocation (Simulated Output)</div>
+      <div class="etf-bars">
+        <div class="etf-bar-row"><div class="etf-name">SPY</div><div class="bar-track"><div class="bar-fill" id="b1" style="width:35%"></div></div><div class="bar-pct" id="p1">35%</div></div>
+        <div class="etf-bar-row"><div class="etf-name">QQQ</div><div class="bar-track"><div class="bar-fill" id="b2" style="width:28%"></div></div><div class="bar-pct" id="p2">28%</div></div>
+        <div class="etf-bar-row"><div class="etf-name">VTI</div><div class="bar-track"><div class="bar-fill" id="b3" style="width:20%"></div></div><div class="bar-pct" id="p3">20%</div></div>
+        <div class="etf-bar-row"><div class="etf-name">BND</div><div class="bar-track"><div class="bar-fill" id="b4" style="width:12%"></div></div><div class="bar-pct" id="p4">12%</div></div>
+        <div class="etf-bar-row"><div class="etf-name">GLD</div><div class="bar-track"><div class="bar-fill" id="b5" style="width:5%"></div></div><div class="bar-pct" id="p5">5%</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section reveal" id="cta">
+  <div class="section-label">Get Started</div>
+  <div class="section-title">Smarter ETF decisions<br>start with your preferences.</div>
+  <p class="section-desc">Stop guessing. Stop overpaying. ETFopt finds the portfolio that fits you — built on data, driven by what you actually care about.</p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <button class="btn-primary">Start Optimizing Now</button>
+    <button class="btn-outline">Learn More →</button>
+  </div>
+</div>
+
+<footer>
+  <p><strong>ETFopt</strong> — Preference-Driven ETF Portfolio Optimization</p>
+  <p style="margin-top:0.5rem;color:var(--border)">© 2025 ETFopt. All rights reserved.</p>
+</footer>
+
+<script>
+  const sliders = document.querySelectorAll('input[type=range]');
+  function updateDemo(el, valId) {
+    document.getElementById(valId).textContent = el.value + '%';
+    recalc();
+  }
+  function recalc() {
+    const vals = Array.from(sliders).map(s => parseInt(s.value));
+    const ret=vals[0],risk=vals[1],cost=vals[2],liq=vals[3],div=vals[4],sent=vals[5];
+    let spy=20+ret*0.15+div*0.05, qqq=10+ret*0.18-risk*0.05;
+    let vti=15+div*0.12+liq*0.05, bnd=5+(100-risk)*0.08+cost*0.03;
+    let gld=2+(100-risk)*0.04+sent*0.02;
+    const total=spy+qqq+vti+bnd+gld;
+    spy=Math.round(spy/total*100); qqq=Math.round(qqq/total*100);
+    vti=Math.round(vti/total*100); bnd=Math.round(bnd/total*100); gld=100-spy-qqq-vti-bnd;
+    ['b1','b2','b3','b4','b5'].forEach((id,i)=>{ document.getElementById(id).style.width=[spy,qqq,vti,bnd,gld][i]+'%'; });
+    ['p1','p2','p3','p4','p5'].forEach((id,i)=>{ document.getElementById(id).textContent=[spy,qqq,vti,bnd,gld][i]+'%'; });
+  }
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+  },{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
