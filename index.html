@@ -539,7 +539,14 @@
     <p class="section-desc">Adjust how much each dimension matters to you — the platform instantly recalculates an optimized allocation tailored to your inputs.</p>
   </div>
   <div class="demo-section reveal">
-    <div class="demo-title">Your Preference Settings (AHP Simulation)</div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; width: 100%;">
+        <div class="demo-title" style="margin: 0;">Your Preference Settings (AHP Simulation)</div>
+        
+        <button id="calc-btn" class="btn-primary" style="margin: 0; padding: 10px 20px; font-size: 15px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap;" onclick="fetchDataFromPython()">
+        ✨Start 
+        </button>
+      </div>
     <div class="slider-group">
       <div class="slider-label"><span>📈 Return Priority</span><span class="slider-val" id="v1">70%</span></div>
       <input type="range" min="0" max="100" value="70" oninput="updateDemo(this,'v1')">
@@ -567,11 +574,31 @@
     <div class="demo-result">
       <div class="result-label">Optimized Portfolio Allocation (Simulated Output)</div>
       <div class="etf-bars">
-        <div class="etf-bar-row"><div class="etf-name">SPY</div><div class="bar-track"><div class="bar-fill" id="b1" style="width:35%"></div></div><div class="bar-pct" id="p1">35%</div></div>
-        <div class="etf-bar-row"><div class="etf-name">QQQ</div><div class="bar-track"><div class="bar-fill" id="b2" style="width:28%"></div></div><div class="bar-pct" id="p2">28%</div></div>
-        <div class="etf-bar-row"><div class="etf-name">VTI</div><div class="bar-track"><div class="bar-fill" id="b3" style="width:20%"></div></div><div class="bar-pct" id="p3">20%</div></div>
-        <div class="etf-bar-row"><div class="etf-name">BND</div><div class="bar-track"><div class="bar-fill" id="b4" style="width:12%"></div></div><div class="bar-pct" id="p4">12%</div></div>
-        <div class="etf-bar-row"><div class="etf-name">GLD</div><div class="bar-track"><div class="bar-fill" id="b5" style="width:5%"></div></div><div class="bar-pct" id="p5">5%</div></div>
+          <div class="etf-bar-row">
+              <div class="etf-name" id="name1">SPY</div>
+              <div class="bar-track"><div class="bar-fill" id="b1" style="width:35%"></div></div>
+              <div class="bar-pct" id="p1">35%</div>
+          </div>
+          <div class="etf-bar-row">
+              <div class="etf-name" id="name2">QQQ</div>
+              <div class="bar-track"><div class="bar-fill" id="b2" style="width:28%"></div></div>
+              <div class="bar-pct" id="p2">28%</div>
+          </div>
+          <div class="etf-bar-row">
+              <div class="etf-name" id="name3">VTI</div>
+              <div class="bar-track"><div class="bar-fill" id="b3" style="width:20%"></div></div>
+              <div class="bar-pct" id="p3">20%</div>
+          </div>
+          <div class="etf-bar-row">
+              <div class="etf-name" id="name4">BND</div>
+              <div class="bar-track"><div class="bar-fill" id="b4" style="width:12%"></div></div>
+              <div class="bar-pct" id="p4">12%</div>
+          </div>
+          <div class="etf-bar-row">
+              <div class="etf-name" id="name5">GLD</div>
+              <div class="bar-track"><div class="bar-fill" id="b5" style="width:5%"></div></div>
+              <div class="bar-pct" id="p5">5%</div>
+          </div>
       </div>
     </div>
   </div>
@@ -593,27 +620,92 @@
 </footer>
 
 <script>
-  const sliders = document.querySelectorAll('input[type=range]');
-  function updateDemo(el, valId) {
-    document.getElementById(valId).textContent = el.value + '%';
-    recalc();
+  // 3. 更新後端真實數據的 UI
+  function updateUIWithRealData(portfolioData) {
+    console.log("開始更新真實數據:", portfolioData);
+    portfolioData.sort((a, b) => b.Weight - a.Weight);
+    portfolioData.forEach((item, index) => {
+        let i = index + 1;
+        const nameEl = document.getElementById(`name${i}`);
+        const bar = document.getElementById(`b${i}`);
+        const text = document.getElementById(`p${i}`);
+        if (nameEl) nameEl.innerText = item.Ticker;
+        if (bar) bar.style.width = item.Weight + "%";
+        if (text) text.innerText = Math.round(item.Weight) + "%";
+    });
   }
+
+  // 4. 與 Python 後端連線的唯一入口
+  async function fetchDataFromPython() {
+    const btn = document.getElementById('calc-btn');
+    const payload = {
+      ret: parseFloat(sliders[0].value),
+      risk: parseFloat(sliders[1].value),
+      cost: parseFloat(sliders[2].value),
+      liq: parseFloat(sliders[3].value),
+      div: parseFloat(sliders[4].value),
+      sent: parseFloat(sliders[5].value)
+    };
+
+    if (btn) { 
+      btn.innerText = "🏃🏻Calculating..."; 
+      btn.disabled = true; 
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        console.log("計算成功，更新介面...");
+        updateUIWithRealData(data.portfolio);
+      } else {
+        alert("計算失敗: " + data.message);
+      }
+    } catch (error) {
+      console.error("連線錯誤:", error);
+      alert("無法連接到後端 API。請確認 web_api.py 是否已啟動？");
+    } finally {
+      if (btn) {
+        btn.innerText = "✨Start";
+        btn.disabled = false;
+      }
+    }
+  }
+
+  // 輔助函式：即時顯示拉桿數值
+  function updateDemo(input, valId) {
+    document.getElementById(valId).innerText = input.value + '%';
+  }
+
+  // 1. 抓取所有拉桿
+  const sliders = document.querySelectorAll('input[type=range]');
+
+  // 2. 原有的流暢模擬效果
   function recalc() {
     const vals = Array.from(sliders).map(s => parseInt(s.value));
-    const ret=vals[0],risk=vals[1],cost=vals[2],liq=vals[3],div=vals[4],sent=vals[5];
+    const [ret, risk, cost, liq, div, sent] = vals;
     let spy=20+ret*0.15+div*0.05, qqq=10+ret*0.18-risk*0.05;
     let vti=15+div*0.12+liq*0.05, bnd=5+(100-risk)*0.08+cost*0.03;
     let gld=2+(100-risk)*0.04+sent*0.02;
     const total=spy+qqq+vti+bnd+gld;
     spy=Math.round(spy/total*100); qqq=Math.round(qqq/total*100);
     vti=Math.round(vti/total*100); bnd=Math.round(bnd/total*100); gld=100-spy-qqq-vti-bnd;
-    ['b1','b2','b3','b4','b5'].forEach((id,i)=>{ document.getElementById(id).style.width=[spy,qqq,vti,bnd,gld][i]+'%'; });
-    ['p1','p2','p3','p4','p5'].forEach((id,i)=>{ document.getElementById(id).textContent=[spy,qqq,vti,bnd,gld][i]+'%'; });
+    ['b1','b2','b3','b4','b5'].forEach((id,i)=>{ if(document.getElementById(id)) document.getElementById(id).style.width=[spy,qqq,vti,bnd,gld][i]+'%'; });
+    ['p1','p2','p3','p4','p5'].forEach((id,i)=>{ if(document.getElementById(id)) document.getElementById(id).textContent=[spy,qqq,vti,bnd,gld][i]+'%'; });
   }
-  const observer=new IntersectionObserver(entries=>{
-    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
-  },{threshold:0.12});
-  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+  // 5. 其他動畫監聽器
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
+
 </body>
 </html>
